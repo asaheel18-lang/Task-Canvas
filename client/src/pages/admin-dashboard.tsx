@@ -1,7 +1,10 @@
 import { useAdminStats, useAdminStudents, useLeaderboard } from "@/hooks/use-admin";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, FileText, TrendingUp, Medal } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Loader2, Users, FileText, TrendingUp, Medal, Activity, CheckCircle } from "lucide-react";
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, AreaChart, Area
+} from 'recharts';
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
@@ -17,46 +20,140 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-display font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Overview of student performance and activity.</p>
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-display font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Detailed analytics and student performance trends.</p>
+        </div>
       </div>
 
       {/* High Level Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-l-4 border-l-blue-500 shadow-sm">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Students</p>
-              <h3 className="text-3xl font-bold mt-1">{stats?.totalStudents}</h3>
-            </div>
-            <div className="p-3 bg-blue-50 text-blue-500 rounded-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="hover-elevate transition-all border-none shadow-sm bg-blue-50/50 dark:bg-blue-900/10">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-blue-500/10 text-blue-600 rounded-2xl">
               <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-600/80 uppercase tracking-wider">Students</p>
+              <h3 className="text-3xl font-bold font-display">{stats?.totalStudents}</h3>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-l-green-500 shadow-sm">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Reports</p>
-              <h3 className="text-3xl font-bold mt-1">{stats?.totalReports}</h3>
-            </div>
-            <div className="p-3 bg-green-50 text-green-500 rounded-xl">
+        <Card className="hover-elevate transition-all border-none shadow-sm bg-green-50/50 dark:bg-green-900/10">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-green-500/10 text-green-600 rounded-2xl">
               <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-green-600/80 uppercase tracking-wider">Reports</p>
+              <h3 className="text-3xl font-bold font-display">{stats?.totalReports}</h3>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500 shadow-sm">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Avg. Daily Marks</p>
-              <h3 className="text-3xl font-bold mt-1">{stats?.avgMarks.toFixed(1)}</h3>
+        <Card className="hover-elevate transition-all border-none shadow-sm bg-purple-50/50 dark:bg-purple-900/10">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-purple-500/10 text-purple-600 rounded-2xl">
+              <Activity className="w-6 h-6" />
             </div>
-            <div className="p-3 bg-purple-50 text-purple-500 rounded-xl">
+            <div>
+              <p className="text-sm font-medium text-purple-600/80 uppercase tracking-wider">Avg Marks</p>
+              <h3 className="text-3xl font-bold font-display">{stats?.avgMarks.toFixed(1)}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-elevate transition-all border-none shadow-sm bg-orange-50/50 dark:bg-orange-900/10">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-orange-500/10 text-orange-600 rounded-2xl">
               <TrendingUp className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-orange-600/80 uppercase tracking-wider">Activity Rate</p>
+              <h3 className="text-3xl font-bold font-display">
+                {stats?.totalStudents ? ((stats.totalReports / (stats.totalStudents * 7)) * 100).toFixed(0) : 0}%
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Daily Submissions Trend */}
+        <Card className="lg:col-span-2 overflow-hidden border-none shadow-md">
+          <CardHeader className="bg-muted/30 pb-8">
+            <CardTitle className="text-xl">Submission Trends</CardTitle>
+            <CardDescription>Daily report volume for the last 14 days</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={stats?.dailyStats}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="date" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false}
+                    tickFormatter={(str) => {
+                      const date = new Date(str);
+                      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    }}
+                  />
+                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorCount)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Task Completion Heatmap (Simplified as Bar Chart) */}
+        <Card className="border-none shadow-md">
+          <CardHeader className="bg-muted/30 pb-8">
+            <CardTitle className="text-xl">Popular Tasks</CardTitle>
+            <CardDescription>Frequency of completed actions</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats?.taskStats?.slice(0, 8)} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="task" 
+                    type="category" 
+                    fontSize={10} 
+                    width={100} 
+                    tickLine={false} 
+                    axisLine={false}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
+                  />
+                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -64,57 +161,63 @@ export default function AdminDashboard() {
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Top Performers */}
-        <Card className="h-full">
-          <CardHeader>
+        <Card className="border-none shadow-md overflow-hidden">
+          <CardHeader className="bg-muted/30">
             <CardTitle className="flex items-center gap-2">
               <Medal className="w-5 h-5 text-yellow-500" />
               Leaderboard
             </CardTitle>
+            <CardDescription>Top students based on cumulative score</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {leaderboard?.slice(0, 5).map((entry, index) => (
-                <div key={entry.userId} className="flex items-center justify-between p-3 rounded-lg bg-secondary/20 border border-secondary/50">
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {leaderboard?.slice(0, 6).map((entry, index) => (
+                <div key={entry.userId} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className={`
-                      w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm
+                      w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm
                       ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 
-                        index === 1 ? 'bg-gray-100 text-gray-700' : 
-                        index === 2 ? 'bg-orange-100 text-orange-700' : 'bg-white text-muted-foreground border'}
+                        index === 1 ? 'bg-slate-100 text-slate-700' : 
+                        index === 2 ? 'bg-amber-100 text-amber-700' : 'bg-white dark:bg-slate-800 text-muted-foreground border'}
                     `}>
                       {index + 1}
                     </div>
-                    <span className="font-medium">{entry.name}</span>
+                    <div>
+                      <p className="font-semibold text-foreground">{entry.name}</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Student ID: {entry.userId}</p>
+                    </div>
                   </div>
-                  <div className="text-sm font-bold text-primary">
-                    {entry.totalMarks} pts
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-primary font-display">{entry.totalMarks}</p>
+                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Points</p>
                   </div>
                 </div>
               ))}
               {(!leaderboard || leaderboard.length === 0) && (
-                <p className="text-center text-muted-foreground py-4">No data available yet.</p>
+                <p className="text-center text-muted-foreground py-12">No data available yet.</p>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Student Performance Chart (Mock using top students data) */}
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle>Top Student Performance</CardTitle>
+        {/* Top Student Comparison Chart */}
+        <Card className="border-none shadow-md">
+          <CardHeader className="bg-muted/30">
+            <CardTitle>Performance Distribution</CardTitle>
+            <CardDescription>Comparing top 5 students</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={leaderboard?.slice(0, 5)}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis fontSize={12} tickLine={false} axisLine={false} />
                   <Tooltip 
-                    cursor={{ fill: 'transparent' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
                   />
-                  <Bar dataKey="totalMarks" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={40} />
+                  <Bar dataKey="totalMarks" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} barSize={50} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

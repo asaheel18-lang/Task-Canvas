@@ -23,6 +23,8 @@ export interface IStorage {
   // Stats
   getLeaderboard(): Promise<{ userId: number; name: string; totalMarks: number; rank: number }[]>;
   getGlobalStats(): Promise<{ totalStudents: number; totalReports: number; avgMarks: number }>;
+  getDailySubmissionStats(): Promise<{ date: string; count: number }[]>;
+  getTaskCompletionStats(): Promise<{ task: string; count: number }[]>;
 
   sessionStore: session.Store;
 }
@@ -128,6 +130,43 @@ export class DatabaseStorage implements IStorage {
       totalReports: Number(reportCount?.count || 0),
       avgMarks: Number(avg?.avg || 0)
     };
+  }
+
+  async getDailySubmissionStats(): Promise<{ date: string; count: number }[]> {
+    const result = await db.select({
+      date: reports.date,
+      count: sql<number>`count(*)`
+    })
+    .from(reports)
+    .groupBy(reports.date)
+    .orderBy(desc(reports.date))
+    .limit(14);
+    
+    return result.reverse().map(item => ({
+      date: item.date,
+      count: Number(item.count)
+    }));
+  }
+
+  async getTaskCompletionStats(): Promise<{ task: string; count: number }[]> {
+    const result = await db.select({
+      tasks: reports.tasks
+    }).from(reports);
+
+    const taskCounts: Record<string, number> = {};
+    result.forEach(r => {
+      const reportTasks = r.tasks as Record<string, boolean>;
+      Object.entries(reportTasks).forEach(([task, completed]) => {
+        if (completed) {
+          taskCounts[task] = (taskCounts[task] || 0) + 1;
+        }
+      });
+    });
+
+    return Object.entries(taskCounts).map(([task, count]) => ({
+      task,
+      count
+    })).sort((a, b) => b.count - a.count);
   }
 }
 

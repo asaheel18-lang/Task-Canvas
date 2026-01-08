@@ -95,7 +95,9 @@ export async function registerRoutes(
 
   app.get(api.admin.stats.path, requireAdmin, async (req, res) => {
     const stats = await storage.getGlobalStats();
-    res.json(stats);
+    const dailyStats = await storage.getDailySubmissionStats();
+    const taskStats = await storage.getTaskCompletionStats();
+    res.json({ ...stats, dailyStats, taskStats });
   });
 
   // Seed Admin User
