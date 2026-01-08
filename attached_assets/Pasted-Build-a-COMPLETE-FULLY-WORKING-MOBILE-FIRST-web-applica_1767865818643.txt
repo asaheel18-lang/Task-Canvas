@@ -1,0 +1,111 @@
+Build a COMPLETE, FULLY WORKING, MOBILE-FIRST web application with ZERO errors.
+
+APPLICATION PURPOSE
+
+This is a Daily Student Task Tracking Web App.
+
+Students log in daily and mark 10 fixed tasks as:
+✔ Completed
+✖ Not Completed
+
+Each completed task = 1 mark.
+
+Admin can log in and:
+- View all students’ reports
+- Filter by date range
+- See total marks
+- See rankings (leaderboard)
+- See charts and summaries
+
+USER ROLES
+
+1) STUDENT
+- Can register (open registration)
+- Can log in
+- Can submit DAILY task report
+- Can view own history & total marks
+- Can use mobile comfortably
+
+2) ADMIN
+- Admin account auto-created:
+  Email: asaheel18@gmail.com
+  Password: saheel2006
+- Can log in
+- Can see ALL students
+- Can filter reports by:
+  - Date range
+  - Student
+- Can see leaderboard (ranking)
+- Can see charts (daily / weekly / monthly)
+- Can export data (CSV)
+
+==============================
+TASKS (FIXED – DO NOT CHANGE)
+==============================
+1. Fajr Namaz
+2. Zuhr Namaz
+3. Asr Namaz
+4. Maghrib Namaz
+5. Isha Namaz
+6. Shaam ke Azkar
+7. Subha ke Azkar
+8. Quran ki Tilawat
+9. Sote Waqt ke Azkar
+10. Dua
+
+Each task:
+- Completed = 1 mark
+- Not completed = 0 mark
+
+==============================
+FUNCTIONAL REQUIREMENTS
+==============================
+
+STUDENT SIDE:
+- Registration page
+- Login page
+- Dashboard page
+- Daily Task Submission page:
+  - 10 tasks shown as toggle / checkbox
+  - Auto current date
+  - Submit button
+- History page:
+  - Date wise submissions
+  - Marks per day
+  - Total marks
+
+ADMIN SIDE:
+- Admin dashboard page
+- Student list table
+- Reports table:
+  - Student name
+  - Date
+  - Marks
+- Date range filter
+- Leaderboard:
+  - Rank
+  - Student name
+  - Total marks
+- Charts:
+  - Daily completion
+  - Weekly trend
+  - Top students
+  - Can export data (CSV)
+
+Requirements:
+
+- Mobile-first design
+- Large buttons & checkboxes
+- Clean Islamic-friendly layout
+- No clutter
+- Fast loading
+- Simple navigation
+
+
+
+All the App features must RUN without errors
+Generate the complete application now.
+Make it professional and production-ready.
+
+
+
