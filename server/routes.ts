@@ -4,7 +4,7 @@ import { setupAuth, hashPassword } from "./auth"; // Import hashPassword
 import { storage } from "./storage";
 import { api, errorSchemas } from "@shared/routes";
 import { z } from "zod";
-import { FIXED_TASKS } from "@shared/schema";
+import { FIXED_TASKS, type User } from "@shared/schema";
 
 export async function registerRoutes(
   httpServer: Server,

@@ -47,10 +47,14 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = typeof reports.$inferInsert;
 
-// API Types
-export type LoginRequest = z.infer<typeof api.auth.login.input>;
-export type RegisterRequest = z.infer<typeof api.auth.register.input>;
-export type ReportSubmission = z.infer<typeof api.reports.submit.input>;
+// API Types moved to shared/routes.ts to avoid circular dependency
+export type LoginRequest = { username: string; password: string };
+export type RegisterRequest = InsertUser;
+export type ReportSubmission = {
+  date: string;
+  tasks: Record<string, boolean>;
+  totalMarks: number;
+};
 
 export type UserStats = {
   totalMarks: number;
