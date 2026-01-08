@@ -47,7 +47,7 @@ export default function AuthPage() {
             <MoonStar className="w-8 h-8" />
           </div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-foreground">
-            ImaanTracker
+            Islamic Daily Tasks
           </h1>
           <p className="text-muted-foreground">
             Track your daily Ibadah and spiritual progress

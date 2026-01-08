@@ -69,7 +69,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background/50 flex flex-col md:flex-row">
       {/* Mobile Header */}
       <div className="md:hidden bg-white/80 backdrop-blur-md border-b p-4 flex items-center justify-between sticky top-0 z-50">
-        <h1 className="font-display font-bold text-lg text-primary">ImaanTracker</h1>
+        <h1 className="font-display font-bold text-lg text-primary">Islamic Daily Tasks</h1>
         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
@@ -85,7 +85,7 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 bg-card border-r border-border p-6 shadow-sm z-30">
         <div className="mb-8">
-          <h1 className="font-display font-bold text-2xl text-primary tracking-tight">ImaanTracker</h1>
+          <h1 className="font-display font-bold text-2xl text-primary tracking-tight">Islamic Daily Tasks</h1>
         </div>
         <div className="flex-1 flex flex-col">
           <NavContent />
