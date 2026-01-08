@@ -29,6 +29,7 @@ export default function AuthPage() {
   const registerForm = useForm<z.infer<typeof insertUserSchema>>({
     resolver: zodResolver(insertUserSchema),
     defaultValues: { username: "", password: "", name: "", role: "student" },
+    mode: "onChange",
   });
 
   if (user) {
