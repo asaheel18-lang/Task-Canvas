@@ -26,6 +26,7 @@ export default function StudentDashboard() {
   );
 
   const currentScore = Object.values(tasks).filter(Boolean).length;
+  const maxScore = FIXED_TASKS.length;
 
   const handleSubmit = () => {
     submitReport({
@@ -108,7 +109,7 @@ export default function StudentDashboard() {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Avg. Daily Score</p>
-              <h3 className="text-2xl font-bold font-display">{stats.average}/10</h3>
+              <h3 className="text-2xl font-bold font-display">{stats.average}/{maxScore}</h3>
             </div>
           </CardContent>
         </Card>
@@ -132,7 +133,7 @@ export default function StudentDashboard() {
                   </div>
                   <h3 className="text-xl font-bold">JazakAllah Khair!</h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
-                    You scored <span className="font-bold text-foreground">{todayReport.totalMarks}/10</span> today. 
+                    You scored <span className="font-bold text-foreground">{todayReport.totalMarks}/{maxScore}</span> today. 
                     Keep up the consistency!
                   </p>
                 </div>
@@ -168,7 +169,7 @@ export default function StudentDashboard() {
                   
                   <div className="flex items-center justify-between pt-6 border-t mt-4">
                     <div className="text-sm text-muted-foreground">
-                      Current Score: <span className="font-bold text-foreground text-lg">{currentScore}</span>/10
+                      Current Score: <span className="font-bold text-foreground text-lg">{currentScore}</span>/{maxScore}
                     </div>
                     <Button 
                       onClick={handleSubmit} 
@@ -184,20 +185,8 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* Side Panel - Tips or History Preview */}
+        {/* Side Panel - Recent Activity */}
         <div className="space-y-6">
-          <Card className="bg-secondary/50 border-secondary">
-            <CardHeader>
-              <CardTitle className="text-lg">Daily Reminder</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <blockquote className="italic text-muted-foreground border-l-4 border-primary/30 pl-4 py-1">
-                "The most beloved deeds to Allah are those that are most consistent, even if they are small."
-              </blockquote>
-              <p className="text-xs text-right mt-2 font-medium">— Prophet Muhammad (ﷺ)</p>
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Recent Activity</CardTitle>
@@ -207,7 +196,7 @@ export default function StudentDashboard() {
                 reports.slice(0, 5).map(report => (
                   <div key={report.id} className="flex items-center justify-between text-sm p-2 hover:bg-muted/50 rounded-lg transition-colors">
                     <span className="text-muted-foreground">{format(new Date(report.date), "MMM dd")}</span>
-                    <span className="font-bold bg-secondary px-2 py-0.5 rounded text-xs">{report.totalMarks}/10</span>
+                    <span className="font-bold bg-secondary px-2 py-0.5 rounded text-xs">{report.totalMarks}/{maxScore}</span>
                   </div>
                 ))
               ) : (

@@ -11,7 +11,8 @@ export const FIXED_TASKS = [
   "Shaam ke Azkar",
   "Subha ke Azkar",
   "Quran ki Tilawat",
-  "Sote Waqt ke Azkar",
+  "Guzishta din Sote Waqt ke Azkar",
+  "Guzishta din Surah Mulk",
   "Dua"
 ] as const;
 
