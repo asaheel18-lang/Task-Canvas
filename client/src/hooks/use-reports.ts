@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type ReportSubmission } from "@shared/routes";
+import { api, buildUrl } from "@shared/routes";
+import { type ReportSubmission } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 export function useMyReports() {

@@ -17,13 +17,14 @@ export async function registerRoutes(
 
   // Submit Report
   app.post(api.reports.submit.path, async (req, res) => {
-    if (!req.user) return res.status(401).send();
+    const user = req.user as User | undefined;
+    if (!user) return res.status(401).send();
     
     try {
       const input = api.reports.submit.input.parse(req.body);
       
       // Check if already submitted for this date
-      const existing = await storage.getReportByDate(req.user.id, input.date);
+      const existing = await storage.getReportByDate(user.id, input.date);
       if (existing) {
         return res.status(409).json({ message: "Report already submitted for this date" });
       }
@@ -39,7 +40,7 @@ export async function registerRoutes(
       // Override client score with trusted calculation
       const report = await storage.createReport({
         ...input,
-        userId: req.user.id,
+        userId: user.id,
         totalMarks: calculatedScore
       });
 
@@ -54,8 +55,9 @@ export async function registerRoutes(
 
   // Get My Reports
   app.get(api.reports.listMy.path, async (req, res) => {
-    if (!req.user) return res.status(401).send();
-    const reports = await storage.getReportsByUser(req.user.id);
+    const user = req.user as User | undefined;
+    if (!user) return res.status(401).send();
+    const reports = await storage.getReportsByUser(user.id);
     res.json(reports);
   });
 
@@ -63,7 +65,8 @@ export async function registerRoutes(
 
   // Middleware to ensure admin
   const requireAdmin = (req: any, res: any, next: any) => {
-    if (!req.user || req.user.role !== 'admin') {
+    const user = req.user as User | undefined;
+    if (!user || user.role !== 'admin') {
       return res.status(403).json({ message: "Admin access required" });
     }
     next();
