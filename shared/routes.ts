@@ -17,6 +17,7 @@ export const errorSchemas = {
   }),
 };
 
+// Type helpers - need to move these up or use z.infer locally
 export const api = {
   auth: {
     login: {

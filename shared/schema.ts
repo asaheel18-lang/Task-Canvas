@@ -44,12 +44,12 @@ export const insertReportSchema = createInsertSchema(reports).omit({ id: true, u
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Report = typeof reports.$inferSelect;
-export type InsertReport = z.infer<typeof insertReportSchema>;
+export type InsertReport = typeof reports.$inferInsert;
 
 // API Types
-export type LoginRequest = { username: string; password: string };
-export type RegisterRequest = InsertUser;
-export type ReportSubmission = InsertReport;
+export type LoginRequest = z.infer<typeof api.auth.login.input>;
+export type RegisterRequest = z.infer<typeof api.auth.register.input>;
+export type ReportSubmission = z.infer<typeof api.reports.submit.input>;
 
 export type UserStats = {
   totalMarks: number;
