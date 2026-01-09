@@ -1,15 +1,49 @@
 import { useAdminStats, useAdminStudents, useLeaderboard } from "@/hooks/use-admin";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Users, FileText, TrendingUp, Medal, Activity, CheckCircle } from "lucide-react";
+import { Loader2, Users, FileText, TrendingUp, Medal, Activity, CheckCircle, Trash2 } from "lucide-react";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, AreaChart, Area
 } from 'recharts';
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
   const { data: students, isLoading: studentsLoading } = useAdminStudents();
   const { data: leaderboard, isLoading: leaderboardLoading } = useLeaderboard();
+  const { toast } = useToast();
+
+  const handleDeleteUser = async (userId: number) => {
+    try {
+      await apiRequest("DELETE", `/api/admin/users/${userId}`);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/leaderboard"] });
+      toast({
+        title: "User deleted",
+        description: "Student account and reports have been removed.",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Could not delete user. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (statsLoading || studentsLoading || leaderboardLoading) {
     return (
@@ -187,10 +221,33 @@ export default function AdminDashboard() {
                       <p className="text-xs text-muted-foreground uppercase tracking-wider">Student ID: {entry.userId}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-primary font-display">{entry.totalMarks}</p>
-                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Points</p>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right mr-2">
+                        <p className="text-lg font-bold text-primary font-display">{entry.totalMarks}</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Points</p>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Student?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {entry.name}? This will permanently remove their account and all submission data.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteUser(entry.userId)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                 </div>
               ))}
               {(!leaderboard || leaderboard.length === 0) && (
@@ -211,7 +268,16 @@ export default function AdminDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={leaderboard?.slice(0, 5)}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    fontSize={10} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
                   <YAxis fontSize={12} tickLine={false} axisLine={false} />
                   <Tooltip 
                     cursor={{ fill: 'hsl(var(--muted)/0.3)' }}

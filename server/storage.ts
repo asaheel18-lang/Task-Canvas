@@ -25,6 +25,7 @@ export interface IStorage {
   getGlobalStats(): Promise<{ totalStudents: number; totalReports: number; avgMarks: number }>;
   getDailySubmissionStats(): Promise<{ date: string; count: number }[]>;
   getTaskCompletionStats(): Promise<{ task: string; count: number }[]>;
+  deleteUser(id: number): Promise<void>;
 
   sessionStore: session.Store;
 }
@@ -110,7 +111,7 @@ export class DatabaseStorage implements IStorage {
     .leftJoin(reports, eq(users.id, reports.userId))
     .where(eq(users.role, 'student'))
     .groupBy(users.id, users.name)
-    .orderBy(desc(sql`sum(${reports.totalMarks})`));
+    .orderBy(desc(sql`COALESCE(sum(${reports.totalMarks}), 0)`), users.name);
 
     // Assign ranks
     return result.map((item, index) => ({
@@ -167,6 +168,11 @@ export class DatabaseStorage implements IStorage {
       task,
       count
     })).sort((a, b) => b.count - a.count);
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(reports).where(eq(reports.userId, id));
+    await db.delete(users).where(eq(users.id, id));
   }
 }
 

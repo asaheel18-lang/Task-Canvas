@@ -100,6 +100,23 @@ export async function registerRoutes(
     res.json({ ...stats, dailyStats, taskStats });
   });
 
+  app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    const id = Number(req.params.id);
+    await storage.deleteUser(id);
+    res.status(204).send();
+  });
+
+  app.delete("/api/user/me", async (req, res) => {
+    const user = req.user as User | undefined;
+    if (!user) return res.status(401).send();
+    
+    await storage.deleteUser(user.id);
+    req.logout((err) => {
+      if (err) return res.status(500).send();
+      res.status(204).send();
+    });
+  });
+
   // Seed Admin User
   await seedAdmin();
 

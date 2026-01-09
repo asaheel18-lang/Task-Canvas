@@ -5,14 +5,28 @@ import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { CheckCircle2, Trophy, Flame, Loader2, CalendarCheck, Clock } from "lucide-react";
+import { CheckCircle2, Trophy, Flame, Loader2, CalendarCheck, Clock, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function StudentDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: reports, isLoading } = useMyReports();
   const { mutate: submitReport, isPending } = useSubmitReport();
+  const { toast } = useToast();
   
   const today = format(new Date(), "yyyy-MM-dd");
   const todayFormatted = format(new Date(), "EEEE, MMMM do, yyyy");
@@ -34,6 +48,23 @@ export default function StudentDashboard() {
       tasks,
       totalMarks: currentScore,
     });
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await apiRequest("DELETE", "/api/user/me");
+      toast({
+        title: "Account deleted",
+        description: "Your account and all data have been removed.",
+      });
+      logout();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Could not delete account. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Stats calculation
@@ -119,11 +150,30 @@ export default function StudentDashboard() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <Card className="border-t-4 border-t-primary shadow-lg">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle>Daily Checklist</CardTitle>
-              <CardDescription>
-                Mark your completed tasks for today. May Allah accept your efforts.
-              </CardDescription>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your
+                      account and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Delete Account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardHeader>
             <CardContent>
               {isSubmitted ? (
