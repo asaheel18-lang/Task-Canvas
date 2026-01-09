@@ -1,13 +1,23 @@
 import { ReactNode } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
-import { LogOut, Home, BarChart2, Users, FileText, Menu, X } from "lucide-react";
+import { LogOut, Home, BarChart2, Users, FileText, Menu, X, Sun, Moon, Palette } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/hooks/use-theme";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function LayoutShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
+  const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -52,6 +62,46 @@ export function LayoutShell({ children }: { children: ReactNode }) {
           </Link>
         ))}
       </nav>
+
+      <div className="mt-8 space-y-2">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-3">Personalization</p>
+        <div className="flex items-center gap-2 px-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            className="w-full flex justify-start gap-3 px-3 text-muted-foreground hover:text-foreground"
+          >
+            {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            <span className="text-sm font-medium">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+          </Button>
+        </div>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full flex justify-start gap-3 px-3 text-muted-foreground hover:text-foreground">
+              <Palette className="w-4 h-4" />
+              <span className="text-sm font-medium">Color Scheme</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuLabel>Choose Scheme</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setColorScheme("emerald")} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#10b981]" /> Emerald (Default)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setColorScheme("rose")} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#f43f5e]" /> Rose
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setColorScheme("amber")} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#f59e0b]" /> Amber
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setColorScheme("indigo")} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#6366f1]" /> Indigo
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <div className="mt-auto pt-8 border-t border-border/50">
         <button
