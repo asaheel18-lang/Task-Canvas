@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Download, Eye, Check, X } from "lucide-react";
+import { Loader2, Download, Eye, Check, X, FileJson } from "lucide-react";
 import { useState } from "react";
 import { FIXED_TASKS } from "@shared/schema";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +30,7 @@ export default function AdminReportsPage() {
 
   const { data: students } = useAdminStudents();
 
-  const handleExport = () => {
+  const handleExportCSV = () => {
     if (!reports) return;
     
     const headers = ["Date", "Student", "Score", ...FIXED_TASKS].join(",");
@@ -48,6 +50,33 @@ export default function AdminReportsPage() {
     document.body.removeChild(link);
   };
 
+  const handleExportPDF = () => {
+    if (!reports) return;
+
+    const doc = new jsPDF();
+    doc.text("Islamic Daily Tasks - Student Reports", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${format(new Date(), "yyyy-MM-dd HH:mm")}`, 14, 22);
+
+    const tableColumn = ["Date", "Student", "Score", "Completed Tasks"];
+    const tableRows = reports.map(r => [
+      format(new Date(r.date), "MMM dd, yyyy"),
+      r.studentName,
+      `${r.totalMarks}/10`,
+      FIXED_TASKS.filter(t => (r.tasks as any)[t]).join(", ")
+    ]);
+
+    (doc as any).autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [16, 185, 129] }
+    });
+
+    doc.save(`reports_export_${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -63,10 +92,16 @@ export default function AdminReportsPage() {
           <h1 className="text-3xl font-display font-bold">Reports Log</h1>
           <p className="text-muted-foreground">Detailed view of all daily submissions.</p>
         </div>
-        <Button variant="outline" onClick={handleExport} disabled={!reports?.length}>
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={!reports?.length}>
+            <FileJson className="w-4 h-4 mr-2" />
+            CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={!reports?.length}>
+            <Download className="w-4 h-4 mr-2" />
+            PDF
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
