@@ -143,8 +143,8 @@ export function LayoutShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 p-4 md:p-8 overflow-x-hidden">
-        <div className="max-w-5xl mx-auto animate-in fade-in duration-500 slide-in-from-bottom-4">
+      <main className="flex-1 min-w-0 p-4 sm:p-8 overflow-x-hidden">
+        <div className="max-w-6xl mx-auto animate-in fade-in duration-500 slide-in-from-bottom-4">
           {children}
         </div>
       </main>

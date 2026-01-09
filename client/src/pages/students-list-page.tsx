@@ -78,8 +78,55 @@ export default function StudentsListPage() {
         <CardHeader>
           <CardTitle>All Students ({filteredStudents?.length || 0})</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border overflow-hidden">
+        <CardContent className="p-0 sm:p-6">
+          {/* Mobile view (Cards) */}
+          <div className="grid grid-cols-1 gap-4 p-4 sm:hidden">
+            {filteredStudents && filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <div key={student.id} className="flex flex-col p-4 border rounded-lg bg-card space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-lg">{student.name}</h3>
+                      <p className="text-sm text-muted-foreground">{student.username}</p>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:bg-destructive/10">
+                          <Trash2 className="h-5 h-5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Student?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {student.name}? This will permanently remove their account and data.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDeleteUser(student.id, student.name)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t text-sm">
+                    <span className="text-muted-foreground">Total Marks</span>
+                    <span className="font-bold text-primary">{student.stats?.totalMarks || 0}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-muted-foreground">No students found.</div>
+            )}
+          </div>
+
+          {/* Desktop view (Table) */}
+          <div className="hidden sm:block rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
