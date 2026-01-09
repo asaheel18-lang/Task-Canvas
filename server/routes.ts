@@ -74,8 +74,22 @@ export async function registerRoutes(
 
   app.get(api.admin.students.path, requireAdmin, async (req, res) => {
     const students = await storage.getAllUsers();
-    // Filter to show only students
-    res.json(students.filter(u => u.role === 'student'));
+    const reports = await storage.getAllReports();
+    
+    // Map stats to each student
+    const studentsWithStats = students.filter(u => u.role === 'student').map(student => {
+      const studentReports = reports.filter(r => r.userId === student.id);
+      const totalMarks = studentReports.reduce((acc, curr) => acc + curr.totalMarks, 0);
+      return {
+        ...student,
+        stats: {
+          totalMarks,
+          reportCount: studentReports.length
+        }
+      };
+    });
+    
+    res.json(studentsWithStats);
   });
 
   app.get(api.admin.reports.path, requireAdmin, async (req, res) => {
