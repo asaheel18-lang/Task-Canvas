@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Download, Filter } from "lucide-react";
+import { Loader2, Download, Eye, Check, X } from "lucide-react";
 import { useState } from "react";
 import { FIXED_TASKS } from "@shared/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function AdminReportsPage() {
   const [studentId, setStudentId] = useState<string>("all");
-  const [date, setDate] = useState<string>(""); // Simple date string for now
+  const [date, setDate] = useState<string>(""); 
 
   const { data: reports, isLoading } = useAdminReports({
     studentId: studentId !== "all" ? Number(studentId) : undefined,
@@ -24,7 +31,6 @@ export default function AdminReportsPage() {
   const handleExport = () => {
     if (!reports) return;
     
-    // Create CSV content
     const headers = ["Date", "Student", "Score", ...FIXED_TASKS].join(",");
     const rows = reports.map(r => {
       // @ts-ignore
@@ -130,10 +136,59 @@ export default function AdminReportsPage() {
                           {report.totalMarks}/10
                         </span>
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground text-xs">
-                        {/* Only show first 3 completed tasks for brevity */}
-                        {FIXED_TASKS.filter(t => (report.tasks as any)[t]).slice(0, 2).join(", ")}
-                        {Object.values(report.tasks as any).filter(Boolean).length > 2 && "..."}
+                      <TableCell className="text-right">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 gap-2">
+                              <Eye className="w-4 h-4" />
+                              View
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle className="flex justify-between items-center pr-6">
+                                <span>{report.studentName}'s Report</span>
+                                <span className="text-sm font-normal text-muted-foreground">
+                                  {format(new Date(report.date), "MMMM dd, yyyy")}
+                                </span>
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                              <div className="flex justify-between items-center p-3 bg-primary/5 rounded-lg border border-primary/10">
+                                <span className="font-semibold">Total Score</span>
+                                <span className="text-xl font-bold text-primary">{report.totalMarks}/10</span>
+                              </div>
+                              <div className="grid gap-2">
+                                {FIXED_TASKS.map((task) => {
+                                  const isCompleted = (report.tasks as any)[task];
+                                  return (
+                                    <div 
+                                      key={task} 
+                                      className={cn(
+                                        "flex items-center justify-between p-2 rounded-md border text-sm transition-colors",
+                                        isCompleted ? "bg-green-50/50 border-green-100" : "bg-red-50/50 border-red-100"
+                                      )}
+                                    >
+                                      <span className={isCompleted ? "text-green-900" : "text-red-900"}>{task}</span>
+                                      {isCompleted ? (
+                                        <div className="bg-green-500 text-white rounded-full p-0.5">
+                                          <Check className="w-3 h-3" />
+                                        </div>
+                                      ) : (
+                                        <div className="bg-red-500 text-white rounded-full p-0.5">
+                                          <X className="w-3 h-3" />
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <p className="text-[10px] text-muted-foreground text-center">
+                                Submitted at: {format(new Date(report.submittedAt), "MMM dd, yyyy hh:mm a")}
+                              </p>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </TableCell>
                     </TableRow>
                   ))
@@ -152,3 +207,6 @@ export default function AdminReportsPage() {
     </div>
   );
 }
+
+// Add missing cn helper if needed (assuming it exists in @/lib/utils)
+import { cn } from "@/lib/utils";

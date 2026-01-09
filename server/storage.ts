@@ -96,7 +96,7 @@ export class DatabaseStorage implements IStorage {
     .from(reports)
     .innerJoin(users, eq(reports.userId, users.id))
     .where(and(...conditions))
-    .orderBy(desc(reports.date));
+    .orderBy(desc(reports.date), reports.submittedAt);
 
     return result;
   }
