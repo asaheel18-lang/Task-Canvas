@@ -71,7 +71,7 @@ export default function AdminReportsPage() {
       body: tableRows,
       startY: 30,
       styles: { fontSize: 8 },
-      headStyles: { fillColor: [16, 185, 129] }
+      headStyles: { fillColor: [16, 185, 129] as [number, number, number] }
     });
 
     doc.save(`reports_export_${format(new Date(), "yyyy-MM-dd")}.pdf`);
