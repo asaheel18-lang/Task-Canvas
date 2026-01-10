@@ -105,13 +105,13 @@ export class DatabaseStorage implements IStorage {
     const result = await db.select({
       userId: users.id,
       name: users.name,
-      totalMarks: sql<number>`sum(total_marks)::int`
+      totalMarks: sql<number>`sum(${reports.totalMarks})::int`
     })
     .from(users)
     .leftJoin(reports, eq(users.id, reports.userId))
     .where(eq(users.role, 'student'))
     .groupBy(users.id, users.name)
-    .orderBy(desc(sql`COALESCE(sum(total_marks), 0)`), users.name);
+    .orderBy(desc(sql`COALESCE(sum(${reports.totalMarks}), 0)`), users.name);
 
     // Assign ranks
     return result.map((item, index) => ({
@@ -124,8 +124,7 @@ export class DatabaseStorage implements IStorage {
   async getGlobalStats(): Promise<{ totalStudents: number; totalReports: number; avgMarks: number }> {
     const [studentCount] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, 'student'));
     const [reportCount] = await db.select({ count: sql<number>`count(*)` }).from(reports);
-    const [avg] = await db.select({ avg: sql<number>`avg(total_marks)::float` }).from(reports);
-    console.log("Global stats calculated - avg marks:", avg?.avg);
+    const [avg] = await db.select({ avg: sql<number>`avg(${reports.totalMarks})::float` }).from(reports);
 
     return {
       totalStudents: Number(studentCount?.count || 0),
