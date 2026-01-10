@@ -124,7 +124,7 @@ export class DatabaseStorage implements IStorage {
   async getGlobalStats(): Promise<{ totalStudents: number; totalReports: number; avgMarks: number }> {
     const [studentCount] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, 'student'));
     const [reportCount] = await db.select({ count: sql<number>`count(*)` }).from(reports);
-    const [avg] = await db.select({ avg: sql<number>`avg(${reports.totalMarks})` }).from(reports);
+    const [avg] = await db.select({ avg: sql<number>`avg(${reports.totalMarks})::float` }).from(reports);
 
     return {
       totalStudents: Number(studentCount?.count || 0),
