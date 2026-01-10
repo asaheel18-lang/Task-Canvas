@@ -125,6 +125,7 @@ export class DatabaseStorage implements IStorage {
     const [studentCount] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, 'student'));
     const [reportCount] = await db.select({ count: sql<number>`count(*)` }).from(reports);
     const [avg] = await db.select({ avg: sql<number>`avg(total_marks)::float` }).from(reports);
+    console.log("Global stats calculated - avg marks:", avg?.avg);
 
     return {
       totalStudents: Number(studentCount?.count || 0),
