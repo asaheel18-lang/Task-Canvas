@@ -3,7 +3,6 @@ import { users, reports, type User, type InsertUser, type Report, type InsertRep
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
-import { pool } from "./db";
 
 const PostgresSessionStore = connectPg(session);
 
