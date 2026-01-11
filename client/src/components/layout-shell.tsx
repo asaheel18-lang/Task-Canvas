@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useLocation } from "wouter";
-import { LogOut, Home, BarChart2, Users, FileText, Menu, X, Sun, Moon, Palette } from "lucide-react";
+import { LogOut, Home, BarChart2, Users, FileText, Menu, X, Sun, Moon, Palette, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -14,16 +14,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export function LayoutShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const { theme, setTheme, colorScheme, setColorScheme } = useTheme();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { toast } = useToast();
 
   if (!user) return <>{children}</>;
 
   const isAdmin = user.role === "admin";
+
+  const handleDeleteAccount = async () => {
+    try {
+      await apiRequest("DELETE", "/api/user/me");
+      toast({
+        title: "Account deleted",
+        description: "Your account and all data have been removed.",
+      });
+      logout();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Could not delete account. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const navItems = isAdmin
     ? [
@@ -103,10 +134,38 @@ export function LayoutShell({ children }: { children: ReactNode }) {
         </DropdownMenu>
       </div>
 
-      <div className="mt-auto pt-8 border-t border-border/50">
+      <div className="mt-auto pt-8 border-t border-border/50 space-y-2">
+        {!isAdmin && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete My Account
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your
+                  account and remove your data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Delete Account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
         <button
           onClick={() => logout()}
-          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <LogOut className="w-4 h-4" />
           Sign Out

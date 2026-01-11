@@ -1,12 +1,13 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useMyReports, useSubmitReport } from "@/hooks/use-reports";
 import { FIXED_TASKS } from "@shared/schema";
-import { format } from "date-fns";
+import { format, subDays, isWithinInterval } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { CheckCircle2, Trophy, Flame, Loader2, CalendarCheck, Clock, Trash2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { CheckCircle2, Trophy, Flame, Loader2, CalendarCheck, Clock, Trash2, Calendar } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -28,11 +29,23 @@ export default function StudentDashboard() {
   const { mutate: submitReport, isPending } = useSubmitReport();
   const { toast } = useToast();
   
-  const today = format(new Date(), "yyyy-MM-dd");
-  const todayFormatted = format(new Date(), "EEEE, MMMM do, yyyy");
+  const todayDate = new Date();
+  const dateOptions = useMemo(() => {
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(todayDate.getDate() - i);
+      return {
+        value: format(d, "yyyy-MM-dd"),
+        label: i === 0 ? "Today" : i === 1 ? "Yesterday" : format(d, "EEEE, MMM do")
+      };
+    });
+  }, []);
 
-  const todayReport = reports?.find(r => r.date === today);
-  const isSubmitted = !!todayReport;
+  const [selectedDate, setSelectedDate] = useState(format(todayDate, "yyyy-MM-dd"));
+  const todayFormatted = format(new Date(selectedDate), "EEEE, MMMM do, yyyy");
+
+  const selectedDateReport = reports?.find(r => r.date === selectedDate);
+  const isSubmitted = !!selectedDateReport;
 
   // Form State
   const [tasks, setTasks] = useState<Record<string, boolean>>(
@@ -44,7 +57,7 @@ export default function StudentDashboard() {
 
   const handleSubmit = () => {
     submitReport({
-      date: today,
+      date: selectedDate,
       tasks,
       totalMarks: currentScore,
     });
@@ -150,30 +163,26 @@ export default function StudentDashboard() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <Card className="border-t-4 border-t-primary shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle>Daily Checklist</CardTitle>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your
-                      account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      Delete Account
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 space-y-0">
+              <div className="space-y-1">
+                <CardTitle>Daily Checklist</CardTitle>
+                <CardDescription>Select a date to submit your report</CardDescription>
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Select value={selectedDate} onValueChange={setSelectedDate}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Select date" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dateOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent>
               {isSubmitted ? (
@@ -183,7 +192,7 @@ export default function StudentDashboard() {
                   </div>
                   <h3 className="text-xl font-bold">JazakAllah Khair!</h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
-                    You scored <span className="font-bold text-foreground">{todayReport.totalMarks}/{maxScore}</span> today. 
+                    You scored <span className="font-bold text-foreground">{selectedDateReport.totalMarks}/{maxScore}</span> on <span className="font-medium text-foreground">{format(new Date(selectedDate), "MMM do")}</span>. 
                     Keep up the consistency!
                   </p>
                 </div>
