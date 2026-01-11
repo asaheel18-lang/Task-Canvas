@@ -170,13 +170,13 @@ export default function StudentDashboard() {
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Select value={selectedDate} onValueChange={setSelectedDate}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px] bg-background border-border shadow-sm">
                     <Calendar className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Select date" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border-border shadow-xl">
                     {dateOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem key={option.value} value={option.value} className="focus:bg-primary/10">
                         {option.label}
                       </SelectItem>
                     ))}
