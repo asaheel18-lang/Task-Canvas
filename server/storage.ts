@@ -2,9 +2,11 @@ import { db } from "./db";
 import { users, reports, type User, type InsertUser, type Report, type InsertReport } from "@shared/schema";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import MemoryStoreFactory from "memorystore";
 
-const PostgresSessionStore = connectPg(session);
+const MemoryStore = MemoryStoreFactory(session);
+
+// Storage logic starts here...
 
 export interface IStorage {
   // User ops
