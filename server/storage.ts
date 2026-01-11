@@ -34,12 +34,11 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
 
-  constructor() {
-    this.sessionStore = new PostgresSessionStore({
-      pool,
-      createTableIfMissing: true,
-    });
-  }
+constructor() {
+  this.sessionStore = new MemoryStore({
+    checkPeriod: 86400000 // 24 hours
+  });
+}
 
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
